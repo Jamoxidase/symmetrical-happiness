@@ -1,0 +1,47 @@
+from genome_browser import GenomeBrowser, GenomicRegion
+import json
+
+# Create browser instance
+browser = GenomeBrowser()
+
+# Define region
+region = GenomicRegion(
+    genome="hg19",
+    chrom="chr19",
+    start=45980518,
+    end=45983027
+)
+'''
+region = GenomicRegion(
+    genome="hg19",
+    chrom="chr19",
+    start=45980518,
+    end=45983027,
+    tracks=["knownGene", "tRNAs", "rmsk"]
+)
+'''
+# Get responsecle
+response = browser.view_region(region)
+
+# Print the full response object structure
+print("Response Object Structure:")
+print("------------------------")
+print(f"response.region: {response.region}")
+print(f"response.sequence: [DNA sequence, {len(response.sequence)} bp]")
+print(f"response.features: [{len(response.features)} features]")
+for i, f in enumerate(response.features[:3]):  # Show first 3 features as example
+    print(f"  Feature {i+1}:")
+    print(f"    id: {f.id}")
+    print(f"    name: {f.name}")
+    print(f"    track: {f.track}")
+    print(f"    location: {f.start}-{f.end}")
+    print(f"    score: {f.score}")
+    print(f"    raw_data: {json.dumps(f.raw_data, indent=2)}")
+print(f"  ... [{len(response.features)-3} more features]")
+print(f"response.annotated_sequence: [Annotated sequence with {len(response.features)} features marked]")
+print(f"response.tracks: {response.tracks}")
+print(f"response.generate_browser_link(): {response.generate_browser_link()}")
+print(response.screenshot_path)
+
+#Sequence & annotated sequence
+#

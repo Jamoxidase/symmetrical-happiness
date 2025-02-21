@@ -1,0 +1,10 @@
+:root {
+  /* Apple's corner radius system */
+  --radius-sm: 6px;    /* For small elements like buttons */
+  --radius-md: 10px;   /* For medium elements like input fields */
+  --radius-lg: 12px;   /* For larger containers */
+  --radius-xl: 16px;   /* For very large containers */
+  
+  /* Special case for floating elements like popovers */
+  --radius-float: 14px;
+}

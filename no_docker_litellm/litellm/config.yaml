@@ -1,0 +1,75 @@
+# API Keys
+api_keys:
+  anthropic: &anthropic_key os.environ/ANTHROPIC_API_KEY
+  openai: &openai_key os.environ/OPENAI_KEY
+  openrouter: &openrouter_key os.environ/OPENROUTER_KEY
+
+model_list:
+  - model_name: claude-3-5-sonnet # Here you put the name that you want to call the model
+    litellm_params:
+      model: "anthropic/claude-3-5-sonnet-20241022" # Here you must use providor/official-model-name
+      api_key: *anthropic_key
+
+  - model_name: claude-3-5-haiku
+    litellm_params:
+      model: "anthropic/claude-3-5-haiku-20241022"
+      api_key: "os.environ/ANTHROPIC_API_KEY"
+
+  - model_name: openai-gpt-3.5
+    litellm_params:
+      model: openai/gpt-3.5-turbo
+      api_key: *openai_key
+      temperature: 0.1
+
+  - model_name: openai-gpt-4
+    litellm_params:
+      model: openai/gpt-4
+      api_key: *openai_key
+
+
+  - model_name: R1 
+    litellm_params:
+      model: openrouter/deepseek/deepseek-r1:free
+      api_key: *openrouter_key
+
+  - model_name: mistral-24b
+    litellm_params:
+      model: openrouter/cognitivecomputations/dolphin3.0-r1-mistral-24b:free
+      api_key: *openrouter_key
+
+  - model_name: qwen-72b-instruct
+    litellm_params:
+      model: openrouter/qwen/qwen-2-vl-72b-instruct
+      api_key: *openrouter_key
+
+  - model_name: o3-mini-high
+    litellm_params:
+      model: openrouter/openai/o3-mini-high
+      api_key: *openrouter_key
+
+  - model_name: flash-2
+    litellm_params: 
+      model: openrouter/google/gemini-2.0-flash-001
+      api_key: *openrouter_key
+
+  - model_name: sonar
+    litellm_params:
+      model: openrouter/perplexity/sonar-reasoning
+      api_key: *openrouter_key
+
+  - model_name: Ministral-8b
+    litellm_params:
+      model: openrouter/mistralai/ministral-8b
+      api_key: *openrouter_key
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY # This ones important, 
+  #database_url: "postgresql://<user>:<password>@<host>:<port>/<dbname>" # If you set up database, master key can be used to hand out virtual keys to users, and you can track useage and net spend.
+  
+
+litellm_settings:
+  modify_params: True # Helps handle different model parameters for different providers
+  request_timeout: 600
+  disable_spend_logs: True  # turn off writing each transaction to the db
+  disable_master_key_return: True  # turn off returning master key on UI (checked on '/user/info' endpoint)
+  

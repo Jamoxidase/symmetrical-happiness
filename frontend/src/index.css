@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Apple's corner radius system */
+  --radius-sm: 6px;    /* For small elements like buttons */
+  --radius-md: 10px;   /* For medium elements like input fields */
+  --radius-lg: 12px;   /* For larger containers */
+  --radius-xl: 16px;   /* For very large containers */
+  --radius-float: 14px;  /* For floating elements like popovers */
+
+  /* Colors */
+  --bg-main: #1E1E1E;
+  --bg-surface: #252525;
+  --bg-input: #2A2A2A;
+  --bg-hover: #303030;
+  --text-primary: #E6E6E6;
+  --text-secondary: #A0A0A0;
+  --text-tertiary: #707070;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --border-color-hover: rgba(255, 255, 255, 0.15);
+  --accent-color: #FF6F61;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text-tertiary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Auto-resizing textarea */
+textarea {
+  box-sizing: border-box;
+  resize: none;
+  overflow-y: hidden;
+}
+
+textarea {
+  min-height: 56px;
+  max-height: 200px;
+  height: auto;
+}
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-end-rgb));
+}
+
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.animate-spin-slow {
+  animation: spin-slow 3s linear infinite;
+}
+
