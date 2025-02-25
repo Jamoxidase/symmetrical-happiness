@@ -1,3 +1,5 @@
+import { StreamChunk } from '@/ai-process-viz/types';
+
 export interface Message {
   id: string;
   role: 'user' | 'assistant';
@@ -5,6 +7,7 @@ export interface Message {
   timestamp: string;
   isStreaming?: boolean;
   model?: string;
+  chunks?: StreamChunk[];
 }
 
 export interface TableData {

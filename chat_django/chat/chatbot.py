@@ -285,7 +285,11 @@ class ChatProcessor:
             
             while loop_count < max_loops:
                 logger.debug(f"Planning loop iteration {loop_count}/{max_loops}")
-                
+                yield json.dumps({
+                            'type': 'execute_plan',
+                            'content': f"Step {loop_count+1} processing",
+                            'timestamp': datetime.utcnow().isoformat()
+                        })
                 # Get the model from the message
                 message_obj = await sync_to_async(Message.objects.get)(id=self.message_id)
                 model = message_obj.model or self.model_name  # Use message model or fallback to default
@@ -301,7 +305,10 @@ class ChatProcessor:
                 
                 if loop_count >= max_loops - 1 or "PLAN_COMPLETE=True" in plan_response:
                     logger.debug("Plan complete, starting chat response")
-                    
+                    yield json.dumps({
+                            'type': 'chat_response_stream_initiated',
+                            'timestamp': datetime.utcnow().isoformat()
+                        })
                     
                     # Add current message
                     if self._next_message_image:
@@ -315,9 +322,6 @@ class ChatProcessor:
                         logger.debug(f"Added current message with image: {message[:100]}...")
                         # Clear the image for next message
                         self._next_message_image = None
-                    
-                    # Log complete LLM call
-                    logger.debug("=== COMPLETE LLM CALL PROTOTYPE ===")
                     
                     
                     # Stream response from user-facing agent
@@ -408,7 +412,7 @@ class ChatProcessor:
                                     params['sample'] = value.lower()  # normalize to lowercase
 
                         
-                        # Create MCP request with context in params
+                        # Create MCP request with context in params, this is terrible approach, couple data dont lookup
                         params["context"] = {
                             "user_id": self.user_id,
                             "chat_id": self.chat_id,
@@ -422,7 +426,8 @@ class ChatProcessor:
                         # Execute through MCP interface and stream progress
                         logger.debug("Making MCP request")
                         yield json.dumps({
-                            'type': 'tool_start',
+                            'type': 'tool_progress_GtRNAdb',
+                            'status': 'start',
                             'content': f"Searching for tRNA sequences...",
                             'timestamp': datetime.utcnow().isoformat()
                         })
@@ -430,7 +435,12 @@ class ChatProcessor:
                         result = await rna_tool.process_request(mcp_request)
                         
                         if result.status == "success" and "sequences" in result.data:
-                            
+                            yield json.dumps({
+                                'type': 'tool_progress_gtrnadb',
+                                'status': 'end',
+                                'content': f"Successfully queryed GtRNAdb database...",
+                                'timestamp': datetime.utcnow().isoformat()
+                            })
                             sequences = result.data["sequences"]
                             logger.info(f"Got {len(sequences)} sequences")
                             if sequences:
@@ -501,10 +511,11 @@ class ChatProcessor:
 
                         # Add tool tyle param for transparency
                         yield json.dumps({
-                                'type': 'tool_progress',
-                                'content': f"Found {len(result.data['sequences'])} sequences",
-                                'timestamp': datetime.utcnow().isoformat()
-                            })
+                            'type': 'tool_progress_genome',
+                            'status': 'start',
+                            'content': f"Surfing the genome browser... (Chr: {params['chrom']}, Start: {params['start']}, Stop: {params['end']})",
+                            'timestamp': datetime.utcnow().isoformat()
+                        })
                         
                         # Create MCP request with context in params
                         params["context"] = {
@@ -519,20 +530,12 @@ class ChatProcessor:
                         
                         # Execute through MCP interface and stream progress
                         logger.debug("Making CRAP MCP request")
-                        yield json.dumps({
-                            'type': 'tool_start',
-                            'content': f"Surfing the genome browser...",
-                            'timestamp': datetime.utcnow().isoformat()
-                        })
+                    
                         
                         result = await crap_tool.process_request(mcp_request)
                         
                         if result.status == "success":
-                            yield json.dumps({
-                                'type': 'tool_progress',
-                                'content': f"Retrieved genomic data",
-                                'timestamp': datetime.utcnow().isoformat()
-                            })
+                            
                             
                             # Store sequence and annotated sequence for user-facing agent
                             filtered_data = {
@@ -574,6 +577,19 @@ class ChatProcessor:
                                 # yield json.dumps(image_content)
 
                                 self._next_message_image = ("user", image_content)
+                                yield json.dumps({
+                                    'type': 'tool_progress_genome',
+                                    'status': 'update',
+                                    'file' : 'image',
+                                    'content': result.data['image']['data'],
+                                    'timestamp': datetime.utcnow().isoformat()
+                                })
+                                yield json.dumps({
+                                    'type': 'tool_progress_genome',
+                                    'status': 'end',
+                                    'content': f"Successfully retrieved genomic data",
+                                    'timestamp': datetime.utcnow().isoformat()
+                                })
                         else:
                             # Handle error case
                             error_msg = result.error["message"] if result.error else "Unknown error"

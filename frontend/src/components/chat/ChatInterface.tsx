@@ -121,10 +121,34 @@ const ChatInterface: React.FC = () => {
     }
   }, [isAuthenticated]);
 
-  // Auto-scroll to bottom when messages change
+  // Track if user is near bottom
+  const [isNearBottom, setIsNearBottom] = useState(true);
+  const messageContainerRef = useRef<HTMLDivElement>(null);
+
+  const checkIfNearBottom = useCallback(() => {
+    const container = messageContainerRef.current;
+    if (!container) return;
+    
+    const threshold = 100; // pixels from bottom to consider "near bottom"
+    const isNear = container.scrollHeight - container.scrollTop - container.clientHeight < threshold;
+    setIsNearBottom(isNear);
+  }, []);
+
+  // Add scroll listener
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    const container = messageContainerRef.current;
+    if (!container) return;
+
+    container.addEventListener('scroll', checkIfNearBottom);
+    return () => container.removeEventListener('scroll', checkIfNearBottom);
+  }, [checkIfNearBottom]);
+
+  // Auto-scroll to bottom only if user was already near bottom
+  useEffect(() => {
+    if (isNearBottom) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages, isNearBottom]);
 
   const addError = useCallback((message: string, type: ErrorState['type'] = 'error') => {
     setErrors(prev => [...prev, { message, type, id: Date.now() }]);
@@ -240,7 +264,7 @@ const ChatInterface: React.FC = () => {
                           ? 'max-w-[calc(100%-640px)] mr-[600px]' 
                           : 'max-w-[1200px] mx-auto'}`}>
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto" ref={messageContainerRef}>
               <MessageList
                 messages={messages}
                 tableData={tableData}

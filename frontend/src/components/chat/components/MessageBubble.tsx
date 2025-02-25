@@ -1,9 +1,10 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { Message, TableData } from '../types';
 import { parseMessageContent } from '../DataLink';
 import { SpinningTrnaCursor } from '../SpinningTrnaCursor';
 import { cn } from '@/lib/utils';
 import { Copy, Check } from 'lucide-react';
+import { ProcessVisualizer, ProcessVisualizerRef } from '@/ai-process-viz/components/process-visualizer';
 
 interface MessageBubbleProps {
   message: Message;
@@ -13,6 +14,7 @@ interface MessageBubbleProps {
 
 export function MessageBubble({ message, tableData, model }: MessageBubbleProps) {
   const [copied, setCopied] = useState(false);
+  const visualizerRef = useRef<ProcessVisualizerRef>(null);
 
   const handleCopy = useCallback(async () => {
     try {
@@ -24,8 +26,21 @@ export function MessageBubble({ message, tableData, model }: MessageBubbleProps)
     }
   }, [message.content]);
 
+  // Handle new chunks when they arrive
+  useEffect(() => {
+    if (message.chunks && message.chunks.length > 0 && visualizerRef.current) {
+      const lastChunk = message.chunks[message.chunks.length - 1];
+      visualizerRef.current.handleChunk(lastChunk);
+    }
+  }, [message.chunks]);
+
   return (
     <div className="w-full ml-0 px-6 py-3 group">
+      {/* Process Visualizer - only show when there are chunks */}
+      {message.role === 'assistant' && message.chunks && message.chunks.length > 0 && (
+        <ProcessVisualizer ref={visualizerRef} />
+      )}
+
       {/* Message label */}
       <div className="mb-1 text-[var(--text-tertiary)] text-xs uppercase tracking-wide">
         {message.role === 'user' ? 'You' : `Assistant${message.model ? ` (${message.model})` : ''}`}

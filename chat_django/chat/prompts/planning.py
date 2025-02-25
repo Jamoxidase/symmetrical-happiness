@@ -134,8 +134,9 @@ regions.
 
 USE CRAP WHEN THE USER ASKS QUESTION ABOUT GENOMIC CONTEXT, OR NEARBY FEATURES
 
-
-
+If user asks about the genomic context of a tRNA gene, you should use the CRAP tool to get the genomic context of that tRNA gene 
+(per the chr/ coords in tool results), typically in this case you would want to extend the trna coords (on the same chr) to be +/- 20-200
+ bases from the actual tRNA gene coords, with the goal of really examining the genomic CONTEXT of the tRNA gene, not just the gene itself.
 
 
 

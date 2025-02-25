@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react';
-import { flushSync } from 'react-dom';
 import { Message, TableData, Chat } from '../types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -112,18 +111,16 @@ export function useMessages({ activeChat, authToken }: UseMessagesProps): UseMes
             break;
           }
 
-          flushSync(() => {
-            setTableData(prev => {
-              const newData = {
-                ...prev,
-                sequences: {
-                  ...(prev.sequences || {}),
-                  [parsedData.data.gene_symbol]: parsedData.data
-                }
-              };
-              console.log('Updated tableData:', newData);
-              return newData;
-            });
+          setTableData(prev => {
+            const newData = {
+              ...prev,
+              sequences: {
+                ...(prev.sequences || {}),
+                [parsedData.data.gene_symbol]: parsedData.data
+              }
+            };
+            console.log('Updated tableData:', newData);
+            return newData;
           });
           break;
 
@@ -151,13 +148,33 @@ export function useMessages({ activeChat, authToken }: UseMessagesProps): UseMes
               content: '',  // Start empty
               timestamp: parsedData.timestamp,
               isStreaming: true,
-              model: parsedData.model
+              model: parsedData.model,
+              chunks: []  // Initialize empty chunks
             }
           ];
 
           console.log('Adding new messages:', newMessages);
-          flushSync(() => {
-            setMessages(prev => [...prev, ...newMessages]);
+          setMessages(prev => [...prev, ...newMessages]);
+          break;
+
+        case 'execute_plan':
+        case 'tool_progress_GtRNAdb':
+        case 'tool_progress_gtrnadb':
+        case 'tool_progress_genome':
+          // Store the chunk for ProcessVisualizer
+          setMessages(prev => {
+            const lastMessage = prev[prev.length - 1];
+            if (lastMessage?.role === 'assistant') {
+              const chunks = [...(lastMessage.chunks || [])];
+              chunks.push(parsedData);
+              
+              return prev.map((msg, idx) => 
+                idx === prev.length - 1
+                  ? { ...msg, chunks }
+                  : msg
+              );
+            }
+            return prev;
           });
           break;
 
@@ -166,53 +183,67 @@ export function useMessages({ activeChat, authToken }: UseMessagesProps): UseMes
           if (typeof parsedData.content === 'string') {
             streamingContentRef.current += parsedData.content;
             
-            flushSync(() => {
-              setMessages(prev => {
-                // Find the streaming message
-                const hasStreaming = prev.some(msg => msg.isStreaming);
-                if (!hasStreaming) {
-                  console.warn('No streaming message found in token event');
-                  return prev;
+            setMessages(prev => {
+              // Find the streaming message
+              const hasStreaming = prev.some(msg => msg.isStreaming);
+              if (!hasStreaming) {
+                console.warn('No streaming message found in token event');
+                return prev;
+              }
+              
+              return prev.map(msg => 
+                msg.isStreaming
+                ? { 
+                    ...msg,
+                    content: streamingContentRef.current
                 }
-                
-                return prev.map(msg => 
-                  msg.isStreaming
-                  ? { 
-                      ...msg,
-                      content: streamingContentRef.current
-                  }
-                  : msg
-                );
-              });
+                : msg
+              );
             });
           } else {
             console.warn('Received non-string token:', parsedData.content);
           }
           break;
 
+        case 'start_response':
+          // Store the chunk for ProcessVisualizer to handle auto-collapse
+          setMessages(prev => {
+            const lastMessage = prev[prev.length - 1];
+            if (lastMessage?.role === 'assistant') {
+              const chunks = [...(lastMessage.chunks || [])];
+              chunks.push(parsedData);
+              
+              return prev.map((msg, idx) => 
+                idx === prev.length - 1
+                  ? { ...msg, chunks }
+                  : msg
+              );
+            }
+            return prev;
+          });
+          break;
+
         case 'end':
           console.log('Chat ended, current messages:', messages);
           console.log('Final streaming content:', streamingContentRef.current);
           
-          flushSync(() => {
-            setMessages(prev => {
-              console.log('Updating messages in end event, prev:', prev);
-              const updated = prev.map(msg => {
-                if (msg.isStreaming) {
-                  console.log('Found streaming message:', msg);
-                  return {
-                    ...msg,
-                    content: streamingContentRef.current,
-                    isStreaming: false
-                  };
-                }
-                return msg;
-              });
-              console.log('Updated messages:', updated);
-              return updated;
+          setMessages(prev => {
+            console.log('Updating messages in end event, prev:', prev);
+            const updated = prev.map(msg => {
+              if (msg.isStreaming) {
+                console.log('Found streaming message:', msg);
+                return {
+                  ...msg,
+                  content: streamingContentRef.current,
+                  isStreaming: false
+                };
+              }
+              return msg;
             });
-            setIsLoading(false);
+            console.log('Updated messages:', updated);
+            return updated;
           });
+          setIsLoading(false);
           
           // Keep conversation active but mark streaming as done
           isActiveConversation.current = true;

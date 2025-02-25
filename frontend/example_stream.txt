@@ -1,0 +1,18 @@
+
+data: {"type": "execute_plan", "content": "Step 1 processing", "timestamp": "2025-02-22T00:09:41.533433"}
+
+data: {"type": "tool_progress_GtRNAdb", "status": "start", "content": "Searching for tRNA sequences...", "timestamp": "2025-02-22T00:23:52.474086"}
+
+data: {"type": "tool_progress_gtrnadb", "status": "end", "content": "Successfully queryed GtRNAdb database...", "timestamp": "2025-02-22T00:23:52.493678"}
+
+data: {"type": "execute_plan", "content": "Step 2 processing", "timestamp": "2025-02-22T00:23:52.496165"}
+
+data: {"type": "tool_progress_genome", "status": "start", "content": "Surfing the genome browser... (Chr: chr6, Start: 28867800, Stop: 28868000)", "timestamp": "2025-02-22T00:23:54.521659"}
+
+data: {"type": "tool_progress_genome", "status": "update", "file": "image", "content": "iVBORw0KGgoAAAANSUhEUgAADwAAAAdaCAIAAABPowqcAAABK2lDQ1BTa2tWWwsLBQcjawmgoAAK2YlZWVlZWVkgdraWm5urqquUQA0OIZGRkZGRkpeTCXy7Wzs7Ozs1NzoQAA1ILH4zk4ODg4OCh5vL6+vre3t5oLBQAAytLR0XF3d1f++Dr1EwIANByqKQCAZqWunQAYUgEAAJDAVeIYAAAAAAAAAAAAAAAAAAAAAAAAAAAAgGYBAdAAAAAAAAAAAAAAAAAAAAAAAAAAAADQYiAAGgAAAAAAAAAAAAAAAAAAAAAAAAAAAFoMjaYuQKsyaNCgS5cuEUI6dOjQ1GUBAAAAAAAAAAAAAAAAAAAAAAAAAABohRAArUoWFhYDBgxo6lIAAAAAAAAAAAAAAAAAAAAAAAAAAAC0WhqEcJq6DAAqhO8zAADIg2sEADRzqKYAQB1QtwBA24EaDwCgRUM1DgDNHKopAIBmBdUyAAAQZICuj7lz5zZ1EQAAoJnCNQIAmrm//vqrqYsAAK0Q6hYAaDtQ4wEAtGioxgGgmUM1BQDQrKBaBgAAaP40OJgSA60Ivs/w//bq0AYAEAiCYKD/1hAY6kGgSd4QnjBTwak9gB0fASQnU8AJ2gL8Q/EAnibjQHIyBZCKLAOwlNbH7Q0AAAAAAAAAAAAAACH19gAAAAAAAAAAAAAAgKgJl5tXIUzKpQ4AAAAASUVORK5CYII=", "timestamp": "2025-02-23T11:58:12.040850"}
+
+data: {"type": "tool_progress_genome", "status": "end", "content": "Successfully retrieved genomic data", "timestamp": "2025-02-22T00:24:07.379100"}
+
+data: {"type": "execute_plan", "content": "Step 3 processing", "timestamp": "2025-02-22T00:24:07.379292"}
+
+data: {"type": "start_response", "timestamp": "2025-02-22T00:24:09.335760"}
